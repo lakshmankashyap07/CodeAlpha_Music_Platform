@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify - Music Player</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- TOP NAV HEADER -->
+    <header class="top-nav">
+       <div class="logo">ProStream <span>v3 Platform</span></div>
+        <div class="nav-actions">
+            <button id="btn-upload-modal" title="Upload Song"><i class="fa-solid fa-upload"></i> Upload</button>
+            <button id="btn-auth-trigger" class="login-btn"><i class="fa-solid fa-user"></i> Login</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+
+        <!-- PLAYER MAIN WINDOW -->
+        <div class="main-player-section">
+            
+            <!-- CENTRAL MUSIC CONTROLLER CARD -->
+            <div class="music-card">
+                <div class="track-details">
+                    <div class="cover-wrapper">
+                        <img id="current-cover" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=500" alt="Cover Art">
+                    </div>
+                    <h1 id="current-title">Select From Queue</h1>
+                    <p id="current-artist">No stream loaded</p>
+                </div>
+
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="time-stamps">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+
+                <div class="controls">
+                    <button id="btn-shuffle" title="Shuffle"><i class="fa-solid fa-shuffle"></i></button>
+                    <button id="btn-prev" title="Previous"><i class="fa-solid fa-backward-step"></i></button>
+                    <button id="btn-play" class="play-main" title="Play/Pause"><i class="fa-solid fa-play"></i></button>
+                    <button id="btn-next" title="Next"><i class="fa-solid fa-forward-step"></i></button>
+                    <button id="btn-repeat" title="Repeat"><i class="fa-solid fa-repeat"></i></button>
+                </div>
+
+                <div class="lyrics-toggle" style="width:100%;display:flex;justify-content:center;">
+                    <button id="btn-toggle-lyrics" class="btn-submit" style="width:auto;padding:8px 14px;">Show Lyrics</button>
+                </div>
+                <div class="lyrics-container" id="current-lyrics" style="display:none; max-height:220px; overflow:auto; width:100%; background: rgba(255,255,255,0.02); padding:12px; border-radius:8px; margin-top:10px; color:var(--text-muted);"></div>
+
+                <div class="volume-container">
+                    <i id="volume-icon" class="fa-solid fa-volume-high"></i>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7">
+                </div>
+            </div>
+
+            <!-- RIGHT DATAGRID: SEARCH, ALL SONGS & LIVE HISTORY -->
+            <div class="playlist-wrapper">
+                
+                <!-- ADVANCED LIVE SEARCH BAR -->
+                <div class="search-box-container">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-songs" placeholder="Search song title or artist...">
+                </div>
+
+                <!-- ALL SONGS LIST CONTAINER -->
+                <h3 class="section-title"><i class="fa-solid fa-music"></i> Your Library</h3>
+                <div class="playlist-tracks" id="playlist-container"></div>
+
+                <!-- HISTORIC TRACKS CONTAINER (VISIBLE ONLY IF LOGGED IN) -->
+                <div class="history-block" id="history-block" style="display: none;">
+                    <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Recently Played</h3>
+                    <div class="playlist-tracks" id="history-container"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content auth-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-lock"></i> Login to Spotify</h3>
+                <button class="close-modal-btn" id="close-auth">&times;</button>
+            </div>
+            <form id="auth-form-submit">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="auth-username" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- UPLOAD MODAL -->
+    <div class="modal-overlay" id="upload-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-upload"></i> Upload Your Song</h3>
+                <button class="close-modal-btn" id="close-upload">&times;</button>
+            </div>
+            <form id="upload-form">
+                <div class="form-group">
+                    <label>Song Title</label>
+                    <input type="text" id="upload-title" placeholder="e.g., My Awesome Song" required>
+                </div>
+                <div class="form-group">
+                    <label>Artist Name</label>
+                    <input type="text" id="upload-artist" placeholder="e.g., Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Audio File (MP3, WAV, OGG)</label>
+                    <input type="file" id="upload-audio" accept="audio/*">
+                </div>
+                <div class="form-group">
+                    <label>Or paste External Link (YouTube, SoundCloud, direct file URL)</label>
+                    <input type="url" id="upload-link" placeholder="https://example.com/song.mp3">
+                </div>
+                <div class="form-group">
+                    <label>Cover Image (Optional)</label>
+                    <input type="file" id="upload-cover" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Lyrics (Optional)</label>
+                    <textarea id="upload-lyrics" rows="5" placeholder="Paste lyrics here or click 'Fetch Lyrics' to attempt auto-fetching"></textarea>
+                    <button type="button" id="btn-fetch-lyrics" class="btn-submit" style="margin-top:8px;padding:8px 12px;width:auto;">Fetch Lyrics</button>
+                </div>
+                <button type="submit" class="btn-submit">Upload Song</button>
+            </form>
+        </div>
+    </div>
+
+    <audio id="audio-element"></audio>
+    <script src="App.js"></script>
+</body>
+</html>
